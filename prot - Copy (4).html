@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Visionary Studio | Video Editor & Motion Designer</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Arial', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-12px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 10% 10%, rgba(124, 58, 237, .15), transparent 25%),
+                radial-gradient(circle at 90% 20%, rgba(79, 70, 229, .12), transparent 25%),
+                #0f172a;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, .55);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        }
+
+        .video-card {
+            transition: all .35s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0,0,0,.35);
+        }
+
+        .thumbnail-overlay {
+            opacity: 0;
+            transition: .3s;
+        }
+
+        .video-card:hover .thumbnail-overlay {
+            opacity: 1;
+        }
+
+        .modal-backdrop {
+            background: rgba(2, 6, 23, .88);
+            backdrop-filter: blur(12px);
+        }
+
+        [dir="rtl"] .ltr-icon {
+            transform: scaleX(-1);
+        }
+
+        .hidden-important {
+            display: none !important;
+        }
+
+        .toast {
+            animation: toastIn .3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 min-h-screen">
+
+<!-- ================= NAVBAR ================= -->
+<nav class="fixed top-0 left-0 right-0 z-50 glass">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-20 flex items-center justify-between gap-4">
+
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 shrink-0">
+                <div class="w-11 h-11 rounded-xl gradient-bg flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-film text-xl"></i>
+                </div>
+
+                <div class="hidden sm:block">
+                    <div class="font-black text-lg">Visionary</div>
+                    <div class="text-xs text-slate-400">Video & Motion</div>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center gap-7 text-sm">
+                <a href="#works" data-i18n="navWorks"
+                   class="text-slate-300 hover:text-white transition">
+                    Works
+                </a>
+
+                <a href="#skills" data-i18n="navSkills"
+                   class="text-slate-300 hover:text-white transition">
+                    Skills
+                </a>
+
+                <a href="#contact" data-i18n="navContact"
+                   class="text-slate-300 hover:text-white transition">
+                    Contact
+                </a>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-2">
+
+                <!-- Admin Upload -->
+                <button
+                    id="uploadNavBtn"
+                    onclick="openUploadModal()"
+                    class="hidden-important gradient-bg hover:opacity-90 px-4 py-2 rounded-xl text-sm font-bold transition">
+                    <i class="fa-solid fa-cloud-arrow-up me-1"></i>
+                    <span data-i18n="upload">Upload</span>
+                </button>
+
+                <!-- Language -->
+                <button
+                    onclick="toggleLanguage()"
+                    class="glass px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-700 transition"
+                    title="Switch Language">
+                    <span id="languageLabel">AR</span>
+                </button>
+
+                <!-- Secret Admin -->
+                <button
+                    onclick="openAdminModal()"
+                    class="w-10 h-10 rounded-xl glass hover:bg-slate-700 transition flex items-center justify-center"
+                    title="Admin">
+                    <i id="lockIcon" class="fa-solid fa-lock text-slate-400"></i>
+                </button>
+
+                <!-- Mobile menu -->
+                <button
+                    onclick="toggleMobileMenu()"
+                    class="md:hidden w-10 h-10 rounded-xl glass flex items-center justify-center">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobileMenu" class="hidden md:hidden pb-5">
+            <div class="glass rounded-2xl p-4 flex flex-col gap-3">
+                <a href="#works" onclick="closeMobileMenu()" data-i18n="navWorks"
+                   class="p-3 rounded-xl hover:bg-slate-800">
+                    Works
+                </a>
+
+                <a href="#skills" onclick="closeMobileMenu()" data-i18n="navSkills"
+                   class="p-3 rounded-xl hover:bg-slate-800">
+                    Skills
+                </a>
+
+                <a href="#contact" onclick="closeMobileMenu()" data-i18n="navContact"
+                   class="p-3 rounded-xl hover:bg-slate-800">
+                    Contact
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ================= HERO ================= -->
+<header class="pt-36 pb-24 px-4">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+            <!-- Hero Text -->
+            <div>
+
+                <div class="inline-flex items-center gap-2 glass px-4 py-2 rounded-full text-sm mb-7">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+                    <span data-i18n="available">Available for freelance projects</span>
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight">
+                    <span data-i18n="hero1">Turning ideas into</span>
+                    <br>
+                    <span class="gradient-text" data-i18n="hero2">
+                        stunning visual stories
+                    </span>
+                </h1>
+
+                <p
+                    class="mt-7 text-lg text-slate-400 max-w-2xl leading-8"
+                    data-i18n="heroBio">
+                    Video Editor & Motion Designer creating engaging videos,
+                    cinematic stories and eye-catching motion graphics that
+                    turn ideas into memorable experiences.
+                </p>
+
+                <div class="flex flex-wrap gap-4 mt-9">
+
+                    <a
+                        href="#works"
+                        class="gradient-bg px-6 py-3.5 rounded-xl font-bold hover:scale-105 transition">
+                        <i class="fa-solid fa-play me-2"></i>
+                        <span data-i18n="viewPortfolio">View Portfolio</span>
+                    </a>
+
+                    <a
+                        href="#contact"
+                        class="glass px-6 py-3.5 rounded-xl font-bold hover:bg-slate-800 transition">
+                        <i class="fa-regular fa-envelope me-2"></i>
+                        <span data-i18n="contactMe">Contact Me</span>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Hero Visual -->
+            <div class="relative hidden lg:block">
+
+                <div class="absolute -inset-10 bg-violet-600/10 blur-3xl rounded-full"></div>
+
+                <div class="relative glass rounded-3xl p-5 rotate-2 hover:rotate-0 transition duration-500">
+
+                    <div class="aspect-video rounded-2xl overflow-hidden bg-slate-800 relative">
+
+                        <div class="absolute inset-0 bg-gradient-to-br from-violet-600/50 to-indigo-900/70"></div>
+
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center shadow-2xl animate-pulse-slow">
+                                <i class="fa-solid fa-play text-2xl ms-1"></i>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-5 left-5 right-5">
+                            <div class="text-sm text-violet-300">CREATIVE EDITING</div>
+                            <div class="text-2xl font-black">Visual Storytelling</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
+
+            <div class="glass rounded-2xl p-6 text-center">
+                <div class="text-3xl font-black gradient-text">100+</div>
+                <div class="text-sm text-slate-400 mt-2" data-i18n="statProjects">
+                    Projects
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 text-center">
+                <div class="text-3xl font-black gradient-text">3+</div>
+                <div class="text-sm text-slate-400 mt-2" data-i18n="statYears">
+                    Years Experience
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 text-center">
+                <div class="text-3xl font-black gradient-text">50+</div>
+                <div class="text-sm text-slate-400 mt-2" data-i18n="statClients">
+                    Happy Clients
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 text-center">
+                <div class="text-3xl font-black gradient-text">4</div>
+                <div class="text-sm text-slate-400 mt-2" data-i18n="statTools">
+                    Main Tools
+                </div>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+
+<!-- ================= PORTFOLIO ================= -->
+<section id="works" class="py-24 px-4">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="text-center mb-12">
+            <span class="text-violet-400 font-bold text-sm uppercase tracking-widest"
+                  data-i18n="portfolioLabel">
+                Selected Work
+            </span>
+
+            <h2 class="text-4xl sm:text-5xl font-black mt-3"
+                data-i18n="portfolioTitle">
+                My Portfolio
+            </h2>
+
+            <p class="text-slate-400 mt-4 max-w-2xl mx-auto"
+               data-i18n="portfolioDesc">
+                A collection of video editing, motion design and visual
+                storytelling projects.
+            </p>
+        </div>
+
+        <!-- Filters -->
+        <div
+            id="categoryFilters"
+            class="flex flex-wrap justify-center gap-2 mb-10">
+        </div>
+
+        <!-- Videos -->
+        <div
+            id="portfolioGrid"
+            class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+
+        <!-- Empty -->
+        <div id="emptyState" class="hidden text-center py-20">
+            <div class="w-20 h-20 rounded-full glass mx-auto flex items-center justify-center mb-5">
+                <i class="fa-solid fa-video-slash text-2xl text-slate-500"></i>
+            </div>
+
+            <h3 class="font-bold text-xl" data-i18n="noVideos">
+                No videos found
+            </h3>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ================= SKILLS ================= -->
+<section id="skills" class="py-24 px-4 bg-slate-950/30">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="text-center mb-14">
+
+            <span class="text-violet-400 font-bold text-sm uppercase tracking-widest"
+                  data-i18n="skillsLabel">
+                Software Stack
+            </span>
+
+            <h2 class="text-4xl sm:text-5xl font-black mt-3"
+                data-i18n="skillsTitle">
+                Tools I Master
+            </h2>
+
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+
+            <!-- Premiere -->
+            <div class="glass rounded-3xl p-8 text-center hover:-translate-y-2 transition group">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-blue-900/40 flex items-center justify-center text-4xl text-blue-400 group-hover:scale-110 transition">
+                    <span class="font-black">Pr</span>
+                </div>
+
+                <h3 class="font-bold text-lg mt-5">Premiere Pro</h3>
+
+                <p class="text-sm text-slate-400 mt-2" data-i18n="advanced">
+                    Advanced
+                </p>
+            </div>
+
+            <!-- After Effects -->
+            <div class="glass rounded-3xl p-8 text-center hover:-translate-y-2 transition group">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-purple-900/40 flex items-center justify-center text-4xl text-purple-400 group-hover:scale-110 transition">
+                    <span class="font-black">Ae</span>
+                </div>
+
+                <h3 class="font-bold text-lg mt-5">After Effects</h3>
+
+                <p class="text-sm text-slate-400 mt-2" data-i18n="advanced">
+                    Advanced
+                </p>
+            </div>
+
+            <!-- DaVinci -->
+            <div class="glass rounded-3xl p-8 text-center hover:-translate-y-2 transition group">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-red-900/40 flex items-center justify-center text-4xl text-red-400 group-hover:scale-110 transition">
+                    <span class="font-black">DaV</span>
+                </div>
+
+                <h3 class="font-bold text-lg mt-5">DaVinci Resolve</h3>
+
+                <p class="text-sm text-slate-400 mt-2" data-i18n="advanced">
+                    Advanced
+                </p>
+            </div>
+
+            <!-- Photoshop -->
+            <div class="glass rounded-3xl p-8 text-center hover:-translate-y-2 transition group">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-cyan-900/40 flex items-center justify-center text-4xl text-cyan-400 group-hover:scale-110 transition">
+                    <span class="font-black">Ps</span>
+                </div>
+
+                <h3 class="font-bold text-lg mt-5">Photoshop</h3>
+
+                <p class="text-sm text-slate-400 mt-2" data-i18n="advanced">
+                    Advanced
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ================= CONTACT ================= -->
+<section id="contact" class="py-24 px-4">
+    <div class="max-w-5xl mx-auto">
+
+        <div class="glass rounded-[2rem] p-8 sm:p-12 text-center">
+
+            <span class="text-violet-400 font-bold text-sm uppercase tracking-widest"
+                  data-i18n="contactLabel">
+                Let's Work Together
+            </span>
+
+            <h2 class="text-4xl sm:text-5xl font-black mt-4"
+                data-i18n="contactTitle">
+                Have a project in mind?
+            </h2>
+
+            <p class="text-slate-400 max-w-xl mx-auto mt-5 leading-7"
+               data-i18n="contactDesc">
+                Tell me about your idea and let's turn it into a powerful
+                visual story.
+            </p>
+
+            <div class="grid sm:grid-cols-2 gap-4 mt-10">
+
+                <!-- WhatsApp -->
+                <a
+                    href="https://wa.me/970000000000"
+                    target="_blank"
+                    class="rounded-2xl p-6 bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 transition">
+                    <i class="fa-brands fa-whatsapp text-4xl text-green-400"></i>
+
+                    <h3 class="font-bold text-lg mt-4">WhatsApp</h3>
+
+                    <p class="text-sm text-slate-400 mt-2"
+                       data-i18n="whatsappText">
+                        Let's chat directly
+                    </p>
+                </a>
+
+                <!-- Email -->
+                <a
+                    href="mailto:hello@example.com"
+                    class="rounded-2xl p-6 bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition">
+                    <i class="fa-solid fa-envelope text-4xl text-violet-400"></i>
+
+                    <h3 class="font-bold text-lg mt-4">Email</h3>
+
+                    <p class="text-sm text-slate-400 mt-2">
+                        hello@example.com
+                    </p>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+<footer class="border-t border-slate-800 py-8 px-4">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+
+        <p class="text-sm text-slate-500">
+            © <span id="currentYear"></span>
+            Visionary Studio.
+            <span data-i18n="rights">All rights reserved.</span>
+        </p>
+
+        <div class="flex gap-4 text-slate-400">
+            <a href="#" class="hover:text-white transition">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+
+            <a href="#" class="hover:text-white transition">
+                <i class="fa-brands fa-youtube"></i>
+            </a>
+
+            <a href="#" class="hover:text-white transition">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+        </div>
+
+    </div>
+</footer>
+
+
+<!-- ================= ADMIN LOGIN MODAL ================= -->
+<div
+    id="adminModal"
+    class="fixed inset-0 z-[100] hidden modal-backdrop items-center justify-center p-4">
+
+    <div class="glass rounded-3xl p-7 w-full max-w-md">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+                <h3 class="text-xl font-black" data-i18n="adminTitle">
+                    Admin Access
+                </h3>
+
+                <p class="text-sm text-slate-400 mt-1"
+                   data-i18n="adminDesc">
+                    Enter your secret passcode
+                </p>
+            </div>
+
+            <button onclick="closeAdminModal()"
+                    class="w-10 h-10 rounded-xl hover:bg-slate-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+        <input
+            id="adminPassword"
+            type="password"
+            placeholder="Passcode"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+
+        <button
+            onclick="verifyAdmin()"
+            class="w-full gradient-bg rounded-xl py-3 mt-4 font-bold"
+            data-i18n="unlock">
+            Unlock Admin Mode
+        </button>
+
+    </div>
+</div>
+
+
+<!-- ================= UPLOAD MODAL ================= -->
+<div
+    id="uploadModal"
+    class="fixed inset-0 z-[100] hidden modal-backdrop items-center justify-center p-4 overflow-y-auto">
+
+    <div class="glass rounded-3xl p-7 w-full max-w-2xl my-10">
+
+        <div class="flex items-center justify-between mb-7">
+
+            <div>
+                <h3 class="text-2xl font-black" data-i18n="uploadTitle">
+                    Upload Video
+                </h3>
+
+                <p class="text-sm text-slate-400 mt-1"
+                   data-i18n="uploadDesc">
+                    Add a new project to your portfolio.
+                </p>
+            </div>
+
+            <button onclick="closeUploadModal()"
+                    class="w-10 h-10 rounded-xl hover:bg-slate-800">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+        <form id="uploadForm" onsubmit="saveVideo(event)" class="space-y-5">
+
+            <!-- AR title -->
+            <div>
+                <label class="block text-sm font-bold mb-2">
+                    عنوان الفيديو - AR
+                </label>
+
+                <input
+                    id="titleAR"
+                    required
+                    type="text"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+            </div>
+
+            <!-- EN title -->
+            <div>
+                <label class="block text-sm font-bold mb-2">
+                    Video Title - EN
+                </label>
+
+                <input
+                    id="titleEN"
+                    required
+                    type="text"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label class="block text-sm font-bold mb-2"
+                       data-i18n="category">
+                    Category
+                </label>
+
+                <select
+                    id="videoCategory"
+                    required
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+                </select>
+            </div>
+
+            <!-- Source type -->
+            <div>
+
+                <label class="block text-sm font-bold mb-2"
+                       data-i18n="sourceType">
+                    Video Source
+                </label>
+
+                <div class="grid grid-cols-2 gap-2">
+
+                    <button
+                        type="button"
+                        id="urlSourceBtn"
+                        onclick="setSourceType('url')"
+                        class="source-btn gradient-bg rounded-xl py-3 font-bold">
+                        <i class="fa-solid fa-link me-1"></i>
+                        URL
+                    </button>
+
+                    <button
+                        type="button"
+                        id="fileSourceBtn"
+                        onclick="setSourceType('file')"
+                        class="source-btn glass rounded-xl py-3 font-bold">
+                        <i class="fa-solid fa-file-video me-1"></i>
+                        MP4
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- URL -->
+            <div id="urlSourceField">
+
+                <label class="block text-sm font-bold mb-2">
+                    YouTube / Vimeo URL
+                </label>
+
+                <input
+                    id="videoURL"
+                    type="url"
+                    placeholder="https://youtube.com/watch?v=..."
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+            </div>
+
+            <!-- File -->
+            <div id="fileSourceField" class="hidden">
+
+                <label class="block text-sm font-bold mb-2">
+                    MP4 Video
+                </label>
+
+                <input
+                    id="videoFile"
+                    type="file"
+                    accept="video/mp4,video/webm,video/ogg"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3">
+
+                <p class="text-xs text-amber-400 mt-2">
+                    MP4 files are stored locally. Keep the file relatively small.
+                </p>
+            </div>
+
+            <!-- Thumbnail -->
+            <div>
+
+                <label class="block text-sm font-bold mb-2"
+                       data-i18n="thumbnail">
+                    Thumbnail URL
+                </label>
+
+                <input
+                    id="thumbnail"
+                    type="url"
+                    placeholder="https://..."
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500">
+            </div>
+
+            <!-- Description -->
+            <div>
+
+                <label class="block text-sm font-bold mb-2"
+                       data-i18n="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    rows="4"
+                    required
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-violet-500"></textarea>
+
+            </div>
+
+            <button
+                type="submit"
+                class="w-full gradient-bg rounded-xl py-3.5 font-bold hover:opacity-90">
+                <i class="fa-solid fa-plus me-2"></i>
+                <span data-i18n="addVideo">Add Video</span>
+            </button>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- ================= VIDEO MODAL ================= -->
+<div
+    id="videoModal"
+    class="fixed inset-0 z-[110] hidden modal-backdrop items-center justify-center p-4">
+
+    <div class="w-full max-w-5xl">
+
+        <div class="flex justify-end mb-3">
+
+            <button
+                onclick="closeVideoModal()"
+                class="w-11 h-11 rounded-xl glass hover:bg-slate-700">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+        </div>
+
+        <div
+            id="videoContainer"
+            class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
+        </div>
+
+        <div class="mt-4">
+            <h3 id="modalVideoTitle" class="text-2xl font-black"></h3>
+            <p id="modalVideoDescription" class="text-slate-400 mt-2"></p>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ================= TOAST ================= -->
+<div
+    id="toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] hidden">
+    <div class="glass rounded-xl px-5 py-3 shadow-2xl">
+        <span id="toastText"></span>
+    </div>
+</div>
+
+
+<script>
+
+/* ============================================================
+   TRANSLATIONS
+============================================================ */
+
+const translations = {
+
+    en: {
+        navWorks: "Works",
+        navSkills: "Skills",
+        navContact: "Contact",
+        upload: "Upload",
+
+        available: "Available for freelance projects",
+
+        hero1: "Turning ideas into",
+        hero2: "stunning visual stories",
+
+        heroBio:
+            "Video Editor & Motion Designer creating engaging videos, cinematic stories and eye-catching motion graphics that turn ideas into memorable experiences.",
+
+        viewPortfolio: "View Portfolio",
+        contactMe: "Contact Me",
+
+        statProjects: "Projects",
+        statYears: "Years Experience",
+        statClients: "Happy Clients",
+        statTools: "Main Tools",
+
+        portfolioLabel: "Selected Work",
+        portfolioTitle: "My Portfolio",
+        portfolioDesc:
+            "A collection of video editing, motion design and visual storytelling projects.",
+
+        noVideos: "No videos found",
+
+        skillsLabel: "Software Stack",
+        skillsTitle: "Tools I Master",
+        advanced: "Advanced",
+
+        contactLabel: "Let's Work Together",
+        contactTitle: "Have a project in mind?",
+        contactDesc:
+            "Tell me about your idea and let's turn it into a powerful visual story.",
+        whatsappText: "Let's chat directly",
+
+        rights: "All rights reserved.",
+
+        adminTitle: "Admin Access",
+        adminDesc: "Enter your secret passcode",
+        unlock: "Unlock Admin Mode",
+
+        uploadTitle: "Upload Video",
+        uploadDesc: "Add a new project to your portfolio.",
+
+        category: "Category",
+        sourceType: "Video Source",
+        thumbnail: "Thumbnail URL",
+        description: "Description",
+        addVideo: "Add Video",
+
+        all: "All",
+        short: "Shorts / Reels & TikTok",
+        motion: "Motion Graphics",
+        youtube: "YouTube & Documentary",
+        commercial: "Commercial Ads",
+
+        deleteConfirm: "Delete this video?",
+        wrongPassword: "Wrong passcode!",
+        unlocked: "Admin Mode enabled",
+        locked: "Admin Mode disabled",
+        videoAdded: "Video added successfully",
+        videoDeleted: "Video deleted",
+        fileRequired: "Please select a video file.",
+        urlRequired: "Please enter a YouTube or Vimeo URL.",
+        storageError:
+            "The file is too large for local browser storage."
+    },
+
+    ar: {
+        navWorks: "الأعمال",
+        navSkills: "المهارات",
+        navContact: "تواصل معي",
+        upload: "رفع فيديو",
+
+        available: "متاح للعمل على المشاريع الحرة",
+
+        hero1: "نحوّل الأفكار إلى",
+        hero2: "قصص بصرية مذهلة",
+
+        heroBio:
+            "محرر فيديو ومصمم موشن جرافيك أقدّم فيديوهات جذابة، قصصًا سينمائية ورسومات متحركة تلفت الانتباه وتحول الأفكار إلى تجارب بصرية لا تُنسى.",
+
+        viewPortfolio: "شاهد أعمالي",
+        contactMe: "تواصل معي",
+
+        statProjects: "مشروع",
+        statYears: "سنوات خبرة",
+        statClients: "عميل سعيد",
+        statTools: "أدوات رئيسية",
+
+        portfolioLabel: "أعمال مختارة",
+        portfolioTitle: "معرض أعمالي",
+        portfolioDesc:
+            "مجموعة من مشاريع مونتاج الفيديو والموشن جرافيك والسرد البصري.",
+
+        noVideos: "لا توجد فيديوهات",
+
+        skillsLabel: "البرامج",
+        skillsTitle: "الأدوات التي أتقنها",
+        advanced: "متقدم",
+
+        contactLabel: "لنعمل معًا",
+        contactTitle: "لديك مشروع في ذهنك؟",
+        contactDesc:
+            "أخبرني عن فكرتك ولنحوّلها إلى قصة بصرية قوية ومميزة.",
+        whatsappText: "تواصل معي مباشرة",
+
+        rights: "جميع الحقوق محفوظة.",
+
+        adminTitle: "دخول الإدارة",
+        adminDesc: "أدخل رمز المرور السري",
+        unlock: "فتح وضع الإدارة",
+
+        uploadTitle: "رفع فيديو",
+        uploadDesc: "أضف مشروعًا جديدًا إلى معرض أعمالك.",
+
+        category: "التصنيف",
+        sourceType: "مصدر الفيديو",
+        thumbnail: "رابط الصورة المصغرة",
+        description: "الوصف",
+        addVideo: "إضافة الفيديو",
+
+        all: "الكل",
+        short: "Shorts / Reels & TikTok",
+        motion: "موشن جرافيك",
+        youtube: "يوتيوب ووثائقي",
+        commercial: "إعلانات تجارية",
+
+        deleteConfirm: "هل تريد حذف هذا الفيديو؟",
+        wrongPassword: "رمز المرور غير صحيح!",
+        unlocked: "تم تفعيل وضع الإدارة",
+        locked: "تم إيقاف وضع الإدارة",
+        videoAdded: "تمت إضافة الفيديو بنجاح",
+        videoDeleted: "تم حذف الفيديو",
+        fileRequired: "يرجى اختيار ملف فيديو.",
+        urlRequired: "يرجى إدخال رابط YouTube أو Vimeo.",
+        storageError:
+            "حجم الملف كبير جدًا بالنسبة للتخزين المحلي في المتصفح."
+    }
+};
+
+
+/* ============================================================
+   DEFAULT VIDEOS
+============================================================ */
+
+const defaultVideos = [
+
+    {
+        id: "default-1",
+        titleAR: "مونتاج إعلان إبداعي",
+        titleEN: "Creative Commercial Edit",
+        category: "commercial",
+        description:
+            "Fast-paced commercial edit with cinematic transitions and color grading.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    },
+
+    {
+        id: "default-2",
+        titleAR: "موشن جرافيك سينمائي",
+        titleEN: "Cinematic Motion Graphics",
+        category: "motion",
+        description:
+            "A modern motion graphics project with dynamic typography and animation.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    },
+
+    {
+        id: "default-3",
+        titleAR: "فيديو قصير للسوشيال ميديا",
+        titleEN: "Social Media Short",
+        category: "short",
+        description:
+            "Vertical short-form video designed for Reels, TikTok and Shorts.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    },
+
+    {
+        id: "default-4",
+        titleAR: "قصة وثائقية",
+        titleEN: "Documentary Story",
+        category: "youtube",
+        description:
+            "Documentary-style storytelling with cinematic editing and sound design.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    },
+
+    {
+        id: "default-5",
+        titleAR: "ريلز سريع وحيوي",
+        titleEN: "Dynamic Reel",
+        category: "short",
+        description:
+            "Energetic social media edit using rhythmic cuts and modern effects.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    },
+
+    {
+        id: "default-6",
+        titleAR: "هوية بصرية متحركة",
+        titleEN: "Animated Visual Identity",
+        category: "motion",
+        description:
+            "Animated brand identity combining typography, shapes and visual effects.",
+        thumbnail:
+            "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80",
+        type: "demo"
+    }
+
+];
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let currentLanguage =
+    localStorage.getItem("portfolioLanguage") || "en";
+
+let currentCategory = "all";
+
+let adminMode =
+    sessionStorage.getItem("portfolioAdmin") === "true";
+
+let sourceType = "url";
+
+
+/* ============================================================
+   INIT
+============================================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+
+    initializeStorage();
+    applyLanguage();
+    updateAdminUI();
+    renderCategories();
+    renderVideos();
+
+});
+
+
+/* ============================================================
+   STORAGE
+============================================================ */
+
+function initializeStorage() {
+
+    if (!localStorage.getItem("portfolioVideos")) {
+        localStorage.setItem(
+            "portfolioVideos",
+            JSON.stringify(defaultVideos)
+        );
+    }
+
+}
+
+
+function getVideos() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem("portfolioVideos")
+        ) || [];
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+
+function saveVideos(videos) {
+
+    localStorage.setItem(
+        "portfolioVideos",
+        JSON.stringify(videos)
+    );
+
+}
+
+
+/* ============================================================
+   LANGUAGE
+============================================================ */
+
+function toggleLanguage() {
+
+    currentLanguage =
+        currentLanguage === "en" ? "ar" : "en";
+
+    localStorage.setItem(
+        "portfolioLanguage",
+        currentLanguage
+    );
+
+    applyLanguage();
+    renderCategories();
+    renderVideos();
+
+}
+
+
+function applyLanguage() {
+
+    const html = document.documentElement;
+
+    html.lang = currentLanguage;
+    html.dir =
+        currentLanguage === "ar" ? "rtl" : "ltr";
+
+    document.getElementById("languageLabel").textContent =
+        currentLanguage === "en" ? "AR" : "EN";
+
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+
+        const key = element.dataset.i18n;
+
+        if (translations[currentLanguage][key]) {
+            element.textContent =
+                translations[currentLanguage][key];
+        }
+
+    });
+
+}
+
+
+/* ============================================================
+   CATEGORIES
+============================================================ */
+
+function getCategories() {
+
+    return [
+        {
+            id: "all",
+            key: "all"
+        },
+        {
+            id: "short",
+            key: "short"
+        },
+        {
+            id: "motion",
+            key: "motion"
+        },
+        {
+            id: "youtube",
+            key: "youtube"
+        },
+        {
+            id: "commercial",
+            key: "commercial"
+        }
+    ];
+
+}
+
+
+function renderCategories() {
+
+    const container =
+        document.getElementById("categoryFilters");
+
+    container.innerHTML = "";
+
+    getCategories().forEach(category => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            `category-btn px-4 py-2 rounded-xl text-sm font-bold glass transition ${
+                currentCategory === category.id
+                    ? "active"
+                    : "hover:bg-slate-800"
+            }`;
+
+        button.textContent =
+            translations[currentLanguage][category.key];
+
+        button.onclick = () => {
+
+            currentCategory = category.id;
+
+            renderCategories();
+            renderVideos();
+
+        };
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+/* ============================================================
+   PORTFOLIO RENDER
+============================================================ */
+
+function renderVideos() {
+
+    const grid =
+        document.getElementById("portfolioGrid");
+
+    const empty =
+        document.getElementById("emptyState");
+
+    const videos = getVideos();
+
+    const filtered =
+        currentCategory === "all"
+            ? videos
+            : videos.filter(
+                video =>
+                    video.category === currentCategory
+            );
+
+    grid.innerHTML = "";
+
+    if (!filtered.length) {
+
+        empty.classList.remove("hidden");
+        return;
+
+    }
+
+    empty.classList.add("hidden");
+
+    filtered.forEach(video => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "video-card glass rounded-3xl overflow-hidden";
+
+        const title =
+            currentLanguage === "ar"
+                ? video.titleAR
+                : video.titleEN;
+
+        card.innerHTML = `
+
+            <div class="aspect-video relative overflow-hidden bg-slate-800">
+
+                <img
+                    src="${escapeHTML(video.thumbnail || createGradientThumbnail(video.id))}"
+                    alt="${escapeHTML(title)}"
+                    class="w-full h-full object-cover"
+                    onerror="this.src='${createGradientThumbnail(video.id)}'">
+
+                <div class="thumbnail-overlay absolute inset-0 bg-black/60 flex items-center justify-center">
+
+                    <button
+                        onclick="openVideo('${video.id}')"
+                        class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center hover:scale-110 transition">
+                        <i class="fa-solid fa-play text-xl ms-1"></i>
+                    </button>
+
+                </div>
+
+                ${
+                    adminMode
+                    ? `
+                        <button
+                            onclick="deleteVideo('${video.id}')"
+                            class="absolute top-3 ${
+                                currentLanguage === "ar"
+                                    ? "left-3"
+                                    : "right-3"
+                            } w-10 h-10 rounded-xl bg-red-500/90 hover:bg-red-500 transition flex items-center justify-center"
+                            title="Delete">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `
+                    : ""
+                }
+
+            </div>
+
+            <div class="p-5">
+
+                <div class="text-xs text-violet-400 font-bold mb-2">
+                    ${getCategoryName(video.category)}
+                </div>
+
+                <h3 class="font-black text-lg">
+                    ${escapeHTML(title)}
+                </h3>
+
+                <p class="text-sm text-slate-400 mt-2 line-clamp-2">
+                    ${escapeHTML(video.description || "")}
+                </p>
+
+                <button
+                    onclick="openVideo('${video.id}')"
+                    class="mt-5 text-sm font-bold text-violet-400 hover:text-violet-300 transition">
+                    ${translations[currentLanguage].viewPortfolio}
+                    <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                </button>
+
+            </div>
+        `;
+
+        grid.appendChild(card);
+
+    });
+
+}
+
+
+function getCategoryName(category) {
+
+    return translations[currentLanguage][category] ||
+        category;
+
+}
+
+
+/* ============================================================
+   VIDEO MODAL
+============================================================ */
+
+function openVideo(id) {
+
+    const video =
+        getVideos().find(v => v.id === id);
+
+    if (!video) return;
+
+    const title =
+        currentLanguage === "ar"
+            ? video.titleAR
+            : video.titleEN;
+
+    document.getElementById("modalVideoTitle").textContent =
+        title;
+
+    document.getElementById("modalVideoDescription").textContent =
+        video.description || "";
+
+    const container =
+        document.getElementById("videoContainer");
+
+    container.innerHTML = "";
+
+    if (video.type === "file") {
+
+        const videoElement =
+            document.createElement("video");
+
+        videoElement.src = video.source;
+        videoElement.controls = true;
+        videoElement.autoplay = true;
+        videoElement.className =
+            "w-full h-full object-contain";
+
+        container.appendChild(videoElement);
+
+    } else if (video.type === "youtube") {
+
+        const iframe =
+            document.createElement("iframe");
+
+        iframe.src =
+            `https://www.youtube.com/embed/${video.videoId}?autoplay=1`;
+
+        iframe.className =
+            "w-full h-full";
+
+        iframe.allow =
+            "autoplay; fullscreen; picture-in-picture";
+
+        iframe.allowFullscreen = true;
+
+        container.appendChild(iframe);
+
+    } else if (video.type === "vimeo") {
+
+        const iframe =
+            document.createElement("iframe");
+
+        iframe.src =
+            `https://player.vimeo.com/video/${video.videoId}?autoplay=1`;
+
+        iframe.className =
+            "w-full h-full";
+
+        iframe.allow =
+            "autoplay; fullscreen; picture-in-picture";
+
+        iframe.allowFullscreen = true;
+
+        container.appendChild(iframe);
+
+    } else {
+
+        container.innerHTML = `
+            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-violet-900/50 to-indigo-900/50">
+                <i class="fa-solid fa-film text-6xl text-violet-400 mb-5"></i>
+                <p class="text-slate-300 text-center px-5">
+                    Demo project preview
+                </p>
+            </div>
+        `;
+
+    }
+
+    document
+        .getElementById("videoModal")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("videoModal")
+        .classList.add("flex");
+
+}
+
+
+function closeVideoModal() {
+
+    const modal =
+        document.getElementById("videoModal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    document.getElementById("videoContainer").innerHTML = "";
+
+}
+
+
+/* ============================================================
+   ADMIN
+============================================================ */
+
+function openAdminModal() {
+
+    if (adminMode) {
+
+        adminMode = false;
+
+        sessionStorage.removeItem("portfolioAdmin");
+
+        updateAdminUI();
+        renderVideos();
+
+        showToast(
+            translations[currentLanguage].locked
+        );
+
+        return;
+
+    }
+
+    const modal =
+        document.getElementById("adminModal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    document.getElementById("adminPassword").value = "";
+
+    setTimeout(() => {
+        document.getElementById("adminPassword").focus();
+    }, 100);
+
+}
+
+
+function closeAdminModal() {
+
+    const modal =
+        document.getElementById("adminModal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+}
+
+
+function verifyAdmin() {
+
+    const password =
+        document.getElementById("adminPassword").value;
+
+    /*
+        Change this password before publishing.
+    */
+    const ADMIN_PASSWORD = "1234";
+
+    if (password === ADMIN_PASSWORD) {
+
+        adminMode = true;
+
+        sessionStorage.setItem(
+            "portfolioAdmin",
+            "true"
+        );
+
+        closeAdminModal();
+        updateAdminUI();
+        renderVideos();
+
+        showToast(
+            translations[currentLanguage].unlocked
+        );
+
+    } else {
+
+        showToast(
+            translations[currentLanguage].wrongPassword
+        );
+
+    }
+
+}
+
+
+function updateAdminUI() {
+
+    const uploadBtn =
+        document.getElementById("uploadNavBtn");
+
+    const lockIcon =
+        document.getElementById("lockIcon");
+
+    if (adminMode) {
+
+        uploadBtn.classList.remove("hidden-important");
+
+        lockIcon.className =
+            "fa-solid fa-lock-open text-green-400";
+
+    } else {
+
+        uploadBtn.classList.add("hidden-important");
+
+        lockIcon.className =
+            "fa-solid fa-lock text-slate-400";
+
+    }
+
+}
+
+
+/* ============================================================
+   UPLOAD
+============================================================ */
+
+function openUploadModal() {
+
+    if (!adminMode) return;
+
+    const modal =
+        document.getElementById("uploadModal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    populateCategorySelect();
+
+}
+
+
+function closeUploadModal() {
+
+    const modal =
+        document.getElementById("uploadModal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+}
+
+
+function populateCategorySelect() {
+
+    const select =
+        document.getElementById("videoCategory");
+
+    select.innerHTML = "";
+
+    getCategories()
+        .filter(category => category.id !== "all")
+        .forEach(category => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = category.id;
+
+            option.textContent =
+                translations[currentLanguage][category.key];
+
+            select.appendChild(option);
+
+        });
+
+}
+
+
+function setSourceType(type) {
+
+    sourceType = type;
+
+    const urlField =
+        document.getElementById("urlSourceField");
+
+    const fileField =
+        document.getElementById("fileSourceField");
+
+    const urlBtn =
+        document.getElementById("urlSourceBtn");
+
+    const fileBtn =
+        document.getElementById("fileSourceBtn");
+
+    if (type === "url") {
+
+        urlField.classList.remove("hidden");
+        fileField.classList.add("hidden");
+
+        urlBtn.classList.add("gradient-bg");
+        urlBtn.classList.remove("glass");
+
+        fileBtn.classList.remove("gradient-bg");
+        fileBtn.classList.add("glass");
+
+    } else {
+
+        urlField.classList.add("hidden");
+        fileField.classList.remove("hidden");
+
+        fileBtn.classList.add("gradient-bg");
+        fileBtn.classList.remove("glass");
+
+        urlBtn.classList.remove("gradient-bg");
+        urlBtn.classList.add("glass");
+
+    }
+
+}
+
+
+async function saveVideo(event) {
+
+    event.preventDefault();
+
+    const titleAR =
+        document.getElementById("titleAR").value.trim();
+
+    const titleEN =
+        document.getElementById("titleEN").value.trim();
+
+    const category =
+        document.getElementById("videoCategory").value;
+
+    const thumbnail =
+        document.getElementById("thumbnail").value.trim();
+
+    const description =
+        document.getElementById("description").value.trim();
+
+    const newVideo = {
+
+        id:
+            "video-" +
+            Date.now() +
+            "-" +
+            Math.random().toString(36).slice(2),
+
+        titleAR,
+        titleEN,
+        category,
+        thumbnail:
+            thumbnail || createGradientThumbnail(Date.now()),
+        description
+
+    };
+
+
+    /* ---------------- URL SOURCE ---------------- */
+
+    if (sourceType === "url") {
+
+        const url =
+            document.getElementById("videoURL").value.trim();
+
+        if (!url) {
+
+            showToast(
+                translations[currentLanguage].urlRequired
+            );
+
+            return;
+
+        }
+
+        const parsed =
+            parseVideoURL(url);
+
+        if (!parsed) {
+
+            showToast(
+                "Invalid YouTube/Vimeo URL"
+            );
+
+            return;
+
+        }
+
+        newVideo.type =
+            parsed.type;
+
+        newVideo.videoId =
+            parsed.id;
+
+        newVideo.url =
+            url;
+
+    }
+
+
+    /* ---------------- FILE SOURCE ---------------- */
+
+    if (sourceType === "file") {
+
+        const file =
+            document.getElementById("videoFile").files[0];
+
+        if (!file) {
+
+            showToast(
+                translations[currentLanguage].fileRequired
+            );
+
+            return;
+
+        }
+
+        try {
+
+            const dataURL =
+                await fileToDataURL(file);
+
+            newVideo.type = "file";
+            newVideo.source = dataURL;
+
+        } catch (error) {
+
+            showToast(
+                translations[currentLanguage].storageError
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    try {
+
+        const videos = getVideos();
+
+        videos.unshift(newVideo);
+
+        saveVideos(videos);
+
+        closeUploadModal();
+
+        document
+            .getElementById("uploadForm")
+            .reset();
+
+        setSourceType("url");
+
+        renderVideos();
+
+        showToast(
+            translations[currentLanguage].videoAdded
+        );
+
+    } catch (error) {
+
+        showToast(
+            translations[currentLanguage].storageError
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   DELETE
+============================================================ */
+
+function deleteVideo(id) {
+
+    if (!adminMode) return;
+
+    if (
+        !confirm(
+            translations[currentLanguage].deleteConfirm
+        )
+    ) {
+        return;
+    }
+
+    const videos =
+        getVideos().filter(
+            video => video.id !== id
+        );
+
+    saveVideos(videos);
+
+    renderVideos();
+
+    showToast(
+        translations[currentLanguage].videoDeleted
+    );
+
+}
+
+
+/* ============================================================
+   VIDEO URL PARSER
+============================================================ */
+
+function parseVideoURL(url) {
+
+    try {
+
+        const parsed =
+            new URL(url);
+
+        /* YouTube */
+
+        if (
+            parsed.hostname.includes("youtube.com")
+        ) {
+
+            const id =
+                parsed.searchParams.get("v");
+
+            if (id) {
+
+                return {
+                    type: "youtube",
+                    id
+                };
+
+            }
+
+        }
+
+        if (
+            parsed.hostname === "youtu.be"
+        ) {
+
+            const id =
+                parsed.pathname.substring(1);
+
+            if (id) {
+
+                return {
+                    type: "youtube",
+                    id
+                };
+
+            }
+
+        }
+
+        /* Vimeo */
+
+        if (
+            parsed.hostname.includes("vimeo.com")
+        ) {
+
+            const id =
+                parsed.pathname
+                    .split("/")
+                    .filter(Boolean)
+                    .pop();
+
+            if (id) {
+
+                return {
+                    type: "vimeo",
+                    id
+                };
+
+            }
+
+        }
+
+    } catch (error) {
+
+        return null;
+
+    }
+
+    return null;
+
+}
+
+
+/* ============================================================
+   FILE READER
+============================================================ */
+
+function fileToDataURL(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            () => resolve(reader.result);
+
+        reader.onerror =
+            () => reject(reader.error);
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+function createGradientThumbnail(id) {
+
+    const colors = [
+        ["#7c3aed", "#4f46e5"],
+        ["#4f46e5", "#2563eb"],
+        ["#9333ea", "#c026d3"],
+        ["#4338ca", "#7c3aed"]
+    ];
+
+    const pair =
+        colors[
+            Math.abs(
+                String(id)
+                    .split("")
+                    .reduce(
+                        (a, c) =>
+                            a + c.charCodeAt(0),
+                        0
+                    )
+            ) % colors.length
+        ];
+
+    return `data:image/svg+xml;charset=UTF-8,
+        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700">
+            <defs>
+                <linearGradient id="g" x1="0" x2="1">
+                    <stop stop-color="${pair[0]}"/>
+                    <stop offset="1" stop-color="${pair[1]}"/>
+                </linearGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#g)"/>
+            <circle cx="600" cy="350" r="80" fill="rgba(255,255,255,.15)"/>
+            <polygon points="580,300 580,400 660,350" fill="white"/>
+        </svg>`;
+
+}
+
+
+/* ============================================================
+   MOBILE MENU
+============================================================ */
+
+function toggleMobileMenu() {
+
+    document
+        .getElementById("mobileMenu")
+        .classList.toggle("hidden");
+
+}
+
+
+function closeMobileMenu() {
+
+    document
+        .getElementById("mobileMenu")
+        .classList.add("hidden");
+
+}
+
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+let toastTimeout;
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    const text =
+        document.getElementById("toastText");
+
+    text.textContent = message;
+
+    toast.classList.remove("hidden");
+    toast.classList.add("toast");
+
+    clearTimeout(toastTimeout);
+
+    toastTimeout =
+        setTimeout(() => {
+
+            toast.classList.add("hidden");
+            toast.classList.remove("toast");
+
+        }, 3000);
+
+}
+
+
+/* ============================================================
+   KEYBOARD / MODAL EVENTS
+============================================================ */
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape") {
+
+        closeVideoModal();
+        closeAdminModal();
+        closeUploadModal();
+
+    }
+
+});
+
+
+document
+    .getElementById("videoModal")
+    .addEventListener("click", event => {
+
+        if (event.target.id === "videoModal") {
+            closeVideoModal();
+        }
+
+    });
+
+
+document
+    .getElementById("adminModal")
+    .addEventListener("click", event => {
+
+        if (event.target.id === "adminModal") {
+            closeAdminModal();
+        }
+
+    });
+
+
+document
+    .getElementById("uploadModal")
+    .addEventListener("click", event => {
+
+        if (event.target.id === "uploadModal") {
+            closeUploadModal();
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
